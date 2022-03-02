@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% load static %}
+{% load cabinet_extras %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'cabinet-home' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'cabinet-patients' %}">Patients</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ patient.nom }}</li>
+    </ol>
+</nav>
+
+<center><h1>{{ patient.nom }}</h1>
+    {% if patient.matricule %}
+        {{ patient.matricule }} - 
+    {% endif %}
+
+    {% if patient.sexe %}
+        {{ patient.sexe }}
+    {% endif %}
+</center>
+<p/>
+
+<h4>Contact</h4>
+{% if patient.rue and  patient.code_postal and patient.ville %}
+Adresse:<br/>    
+<a href="https://maps.google.com/maps?q={{ patient.rue }} {{ patient.code_postal }} {{ patient.ville }}" target="_blank">{{ patient.rue }}<br/>
+    {{ patient.code_postal }} {{ patient.ville }}</a><p/>
+{% endif %}
+
+
+{% if patient.telephone %}
+<p/>Téléphone : {{ patient.telephone }} <br>
+{% endif %}
+
+{% if patient.email %}
+E-mail : <a href="mailto:{{ patient.email }}">{{ patient.email }}</a> <br>
+{% endif %}
+<p/>
+<nav>
+    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+        {% if nombre_ordonnances > 0 %}
+        <button class="nav-link active" id="nav-ordonnance-tab" data-bs-toggle="tab" data-bs-target="#nav-ordonnance" type="button" role="tab" aria-controls="nav-ordonnance" aria-selected="true">Ordonnances <span class="badge bg-danger">{{ nombre_ordonnances }}</span></button>
+        {% endif %}
+        {% if nombre_factures > 0 %}
+        <button class="nav-link" id="nav-facture-patient-tab" data-bs-toggle="tab" data-bs-target="#nav-facture-patient" type="button" role="tab" aria-controls="nav-facture-patient" aria-selected="false">Factures Patient <span class="badge bg-danger">{{ nombre_factures }}</span></button>
+        {% endif %}
+        {% if nombre_factures_cns > 0 %}
+            {% if nombre_ordonnances == 0 and nombre_factures == None %}
+                <button class="nav-link active" id="nav-cns-tab" data-bs-toggle="tab" data-bs-target="#nav-cns" type="button" role="tab" aria-controls="nav-cns" aria-selected="false">Factures CNS <span class="badge bg-danger">{{ nombre_factures_cns }}</span></button>
+            {% else %}
+                <button class="nav-link" id="nav-cns-tab" data-bs-toggle="tab" data-bs-target="#nav-cns" type="button" role="tab" aria-controls="nav-cns" aria-selected="false">Factures CNS <span class="badge bg-danger">{{ nombre_factures_cns }}</span></button>
+            {% endif %}
+        {% endif %}
+    </div>
+  </nav>
+
+  <div class="tab-content" id="nav-tabContent">
+    {% if nombre_ordonnances > 0 %}
+    <div class="tab-pane fade show active" id="nav-ordonnance" role="tabpanel" aria-labelledby="nav-ordonnance-tab">
+    {% else %}
+    <div class="tab-pane fade" id="nav-ordonnance" role="tabpanel" aria-labelledby="nav-ordonnance-tab">
+    {% endif %}
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>Numéro</th>
+                    <th>Description</th>
+                    <th>Séances effectuées</th>
+                    <th>Médecin</th>
+                    <th>Date début</th>
+                    <th>Date fin</th>
+                    <th>Etat</th>
+                </tr>
+            </thead>
+            
+        {% for ordonnance in liste_ordonnances %}
+            {% if ordonnance.statut %}
+                <tr>
+            {% else %}
+                <tr style="background-color: rgb(255, 73, 73);">
+            {% endif %}
+                    <td><a href="{% url 'cabinet-ordonnance-info' ordonnance.id %}">{{ ordonnance }}</a></td>
+                    <td>{{ ordonnance.description }}</td>
+                    
+                    <td>{{ ordonnance.seances }}</td>
+                    <td>
+                        {% if ordonnance.medecin.id %}
+                            <a href="{% url 'cabinet-medecin-info' ordonnance.medecin.id %}">{{ ordonnance.medecin }}</a>
+                        {% else %}
+                            Information manquante
+                        {% endif %}
+                    </td>
+                    <td>{{ ordonnance.date_prescription | date:'d/m/Y' }}</td>
+                    <td>{{ ordonnance.date_fin_validite | date:'d/m/Y' }}</td>
+                    <td>
+                        {% if ordonnance.statut %}
+                            <span class="badge rounded-pill bg-success">Acceptée</span>
+                        {% else %}
+                            <span class="badge rounded-pill bg-danger">Refusée</span>
+                        {% endif %}
+                    </td>
+                </tr>
+        {% endfor %}
+        </table>
+    </div>
+
+
+    <div class="tab-pane fade" id="nav-facture-patient" role="tabpanel" aria-labelledby="nav-facture-patient-tab">
+        
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>Numéro</th>
+                    <th>Date</th>
+                    <th>Montant</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+            
+            {% for facture in liste_factures %}
+                <tr>
+                    <td><a href="{% url 'cabinet-facture-info' facture.id %}">{{ facture.numero }}</a></td>
+                    <td>{{ facture.date_creation | date:'d/m/Y' }}</td>
+                    <td>{{ facture.montant | floatformat:2 }}€</td>
+                    <td>
+                        {% if facture.paye %}
+                            <span class="badge rounded-pill bg-success">Payée</span>
+                        {% else %}
+                            <span class="badge rounded-pill bg-danger">Non payée</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        Montant total : {{ montant_total_factures | floatformat:2 }}€<p/>
+    </div>
+
+    {% if nombre_ordonnances == 0 and nombre_factures == None %}
+    <div class="tab-pane fade show active" id="nav-cns" role="tabpanel" aria-labelledby="nav-cns-tab">
+    {% else %}
+    <div class="tab-pane fade" id="nav-cns" role="tabpanel" aria-labelledby="nav-cns-tab">
+    {% endif %}    
+    <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>Numéro</th>
+                    <th>Date</th>
+                    <th>Montant</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+            
+        {% for facture in liste_factures_cns %}
+        <tr>
+            <td><a href="{% url 'cabinet-facture-info' facture.id %}">{{ facture.numero }}</a></td>
+            <td>{{ facture.date_creation | date:'d/m/Y' }}</td>
+            <td>{{ facture.montant | floatformat:2 }}€</td>
+            <td>
+                {% if facture.paye %}
+                    <span class="badge rounded-pill bg-success">Payée</span>
+                {% else %}
+                    <span class="badge rounded-pill bg-danger">Non payée</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+        </table>
+        Montant total : {{ montant_total_factures_cns | floatformat:2 }}€<p/>
+    </div>
+</div>
+
+{% endblock content %}

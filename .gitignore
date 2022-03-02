@@ -1,0 +1,16 @@
+# Exclusion des fichiers locaux
+commands.txt
+Liste_fichiers_DBF.txt
+.DS_Store
+
+
+
+# Django 
+db.sqlite3
+*.pyc
+*.pyo
+migrations/
+media/
+
+# Python
+venv/

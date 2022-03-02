@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load static %}
+{% load cabinet_extras %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'cabinet-home' %}">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Médecins</li>
+    </ol>
+</nav>
+<p>Liste des médecins:</p>
+{% regroup liste_medecins by nom|slice:":1" as lettre_medecin %}
+{% for lettre in lettre_medecin %}
+    <h4>{{ lettre.grouper }}</h4>
+        {% for medecin in lettre.list %}
+            <a href= "{% url 'cabinet-medecin-info' medecin.id %}">{{ medecin.nom }}</a><br/>
+        {% endfor %}
+        <p/>
+{% endfor %}
+
+{% endblock content %}

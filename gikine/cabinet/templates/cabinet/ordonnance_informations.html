@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% load static %}
+{% load cabinet_extras %}
+
+{% block content %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'cabinet-home' %}">Home</a></li>
+            <li class="breadcrumb-item">Ordonnances</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ ordonnance.numero }}</li>
+        </ol>
+    </nav>
+    <h1>Ordonnance {{ ordonnance.numero }}</h1>
+    <div class="d-flex justify-content-end">
+        {% if ordonnance.statut %}
+        <span class="badge rounded-pill bg-success">Acceptée</span>
+    {% else %}
+        <span class="badge rounded-pill bg-danger">Refusée</span>
+    {% endif %}
+    </div>
+    <div class="row row-cols-1 row-cols-md-3 g-3">
+        <div class="col">
+            <div class="card border-0">
+                <div class="card-body">
+                    <h5 class="card-title">Information</h5>
+                <p class="card-text">
+                    Autorisation : {{ ordonnance.autorisation }}<br/>
+                    Objet : {{ ordonnance.description }}<br/>
+                    Prise en charge :
+                    {% if ordonnance.taux %} 
+                        {{ ordonnance.taux }}%
+                    {% else %}
+                        0%
+                    {% endif %}
+                    <br/>
+                    Médecin : {% if ordonnance.medecin %}
+                        <a href="{% url 'cabinet-medecin-info' ordonnance.medecin.id %}">{{ ordonnance.medecin }}</a>
+                    {% else %}
+                        Information manquante
+                    {% endif %}
+                    <br/>
+                    Patient : <a href="{% url 'cabinet-patient-info' ordonnance.patient.id %}">{{ ordonnance.patient }}</a><br/>
+                </p>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card border-0">
+                <div class="card-body">
+                    <h5 class="card-title">Séances</h5>
+                <p class="card-text">
+                    Prescrites : {{ ordonnance.prestations_max }}<br/>
+                    Effectuées : {{ prestations_realisees }}<br/>
+                    Max par semaine : 
+                    {% if ordonnance.prestations_max_semaine > 0 %}
+                        {{ ordonnance.prestations_max_semaine }}
+                    {%else %}
+                        Aucune
+                    {% endif %}
+                </p>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card border-0">
+                <div class="card-body">
+                    <h5 class="card-title">Dates</h5>
+                <p class="card-text">
+                    Date de prescription : {{ ordonnance.date_prescription | date:'d/m/Y' }}<br/>
+                    Date de fin de validité : {{ ordonnance.date_fin_validite | date:'d/m/Y' }}<br/>
+                {% if ordonnance.fichier %}
+                    Date de l'envoi à la CNS : {{ ordonnance.date_cns_envoi | date:'d/m/Y' }}<br/>
+                    Date de réponse de la CNS : {{ ordonnance.date_cns_retour | date:'d/m/Y' }}<br/>
+                {% endif %}
+                </p>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    
+    <table class="table table-sm">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Code</th>
+                <th>Description</th>
+                <th>Tarif</th>
+                <th>Kinesitherapeute</th>
+            </tr>
+        </thead>
+        {% for prestation in liste_prestations %}
+        <tr>
+            <td>{{ prestation.date_prestation | date:'d/m/Y' }}</td>
+            <td>{{ prestation.code_acte }}</td>
+            <td>{{ prestation.libelle }}</td>
+            <td>{{ prestation.prix_acte }}€</td>
+            <td>{{ prestation.kinesitherapeute.initiale }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    {% if ordonnance.fichier %}
+    <div class="d-grid gap-2">
+        <a href="{{ MEDIA_URL }}ordonnances/{{ ordonnance.fichier }}" target="_blank" class="btn btn-primary" role="button">Document</a>
+    </div>
+    {% endif %}
+{% endblock content %}

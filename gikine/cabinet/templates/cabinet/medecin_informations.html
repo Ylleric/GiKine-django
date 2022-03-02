@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load static %}
+{% load cabinet_extras %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'cabinet-home' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'cabinet-medecins' %}">Médecins</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ medecin.nom }}</li>
+    </ol>
+</nav>
+<center>
+<h1>{{ medecin.nom }}</h1>
+{% if medecin.specialite %}
+{{ medecin.specialite }}<br/>
+{% endif %}
+
+{{ medecin.matricule }}<br/>
+{% if medecin.actif %}
+    <span class="badge rounded-pill bg-success">Actif</span>
+{% else %}
+    <span class="badge rounded-pill bg-danger">Inactif</span>
+{% endif %}
+</center>
+<p/>
+<h4>Contact</h4>
+{% if medecin.rue %} 
+    Adresse:<br/>
+
+    <a href="https://maps.google.com/maps?q={{ medecin.rue }} {{ medecin.code_postal }} {{ medecin.ville }}" target="_blank">{{ medecin.rue }}<br/>
+    {{ medecin.code_postal }} - {{ medecin.ville }}</a><br/>
+{% endif %}
+
+{% if medecin.telephone %}
+Téléphone : {{ medecin.telephone }}
+{% endif %}
+<p/>
+<h4>Ordonnances</h4>
+
+<table class="table table-sm">
+    <thead>
+        <tr>
+            <th>Date prescription</th>
+            <th>Numero</th>
+            <th>Description</th>
+            <th>Patient</th>
+        </tr>
+    </thead>
+        
+{% for ordonnance in liste_ordonnances_prescrites %}
+    <tr>
+        <td>{{ ordonnance.date_prescription | date:'d/m/Y' }}</td>
+        <td><a href="{% url 'cabinet-ordonnance-info' ordonnance.id %}">{{ ordonnance.numero }}</a></td>
+        <td>{{ ordonnance.description }}</td>
+        <td><a href="{% url 'cabinet-patient-info' ordonnance.patient.id %}">{{ ordonnance.patient }}</a></td>
+        
+    </tr>
+{% endfor %}
+{% endblock content %}

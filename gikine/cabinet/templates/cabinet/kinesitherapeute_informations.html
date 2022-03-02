@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load static %}
+{% load cabinet_extras %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'cabinet-home' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'cabinet-kinesitherapeutes' %}">Kinesitherapeutes</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ kinesitherapeute.initiale }}</li>
+    </ol>
+</nav>
+{{ kinesitherapeute.nom }}<p/>
+<table class="table table-sm">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Patient</th>
+            <th>Ordonnance</th>
+        </tr>
+    </thead>
+{% for prestation in liste_prestations %}
+<tr>
+    <td>{{ prestation.date_prestation | date:'d/m/Y' }}</td>
+    <td><a href="{% url 'cabinet-patient-info' prestation.patient.id %}">{{ prestation.patient }}</a></td>
+    <td><a href="{% url 'cabinet-ordonnance-info' prestation.ordonnance.id %}">{{ prestation.ordonnance }}</a></td>
+</tr>
+{% endfor %}
+</table>
+{% endblock content %}

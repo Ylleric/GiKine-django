@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load static %}
+{% load cabinet_extras %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'cabinet-home' %}">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Kinesitherapeutes</li>
+    </ol>
+</nav>
+<p>Liste des kinesitherapeutes:</p>
+{% for kinesitherapeute in kinesitherapeutes %}
+    <a href="{% url 'cabinet-kinesitherapeute-info' kinesitherapeute.id %}">{{ kinesitherapeute.nom }}</a><p/>
+{% endfor %}
+
+{% endblock content %}

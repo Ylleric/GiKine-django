@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% load static %}
+{% load cabinet_extras %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'cabinet-home' %}">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Chiffre d'affaire</li>
+    </ol>
+</nav>
+
+<div id="container">
+    {% for annee in nb_annees %}
+        <canvas id="CA-chart-{{annee}}">
+            <script>
+                const config{{annee}} = {
+                    type: 'bar',
+                    data: {
+                        datasets: [
+                            {
+                                label: 'Revenus',
+                                xValueType: "dateTime",
+                                data: {{ data | get_item:annee | safe }},
+                                backgroundColor: [
+                                    '#04B45F',
+                                ],
+                                order: 1,
+                                yAxisID: 'Revenus',
+
+                            },
+                            {
+                                label: 'Prestations',
+                                data: {{ data_count | get_item:annee | safe }},
+                                backgroundColor: [
+                                    '#cc0000',
+                                ],
+                                type: 'line',
+                                order: 0,
+                                yAxisID: 'Prestations',
+                            }
+                        ],
+                        labels: {{ labels | get_item:annee | safe }}
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                display: true
+                            },
+                            title: {
+                                display: true,
+                                text: "Chiffre d'affaire {{ titre_annee }}"
+                            }
+                        },
+                        scales: {
+                            Revenus: {
+                                type: 'linear',
+                                position: 'left',
+                            }, 
+                            Prestations: {
+                                type: 'linear',
+                                position: 'right',
+                                ticks: {
+                                    max: 1,
+                                    min: 0
+                                }
+                                
+                            },
+
+                        }
+                    },
+                };
+                
+
+            </script>
+        </canvas>
+    {% endfor %}
+
+    <script>
+        window.onload = function() {
+        {% for annee in nb_annees %}
+            var ctx{{annee}} = document.getElementById('CA-chart-{{annee}}').getContext('2d');
+            window.myPie = new Chart(ctx{{annee}}, config{{annee}});
+        {% endfor %}
+        };
+    </script>
+</div>
+
+{% endblock content %}

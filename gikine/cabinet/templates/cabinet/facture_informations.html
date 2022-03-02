@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load static %}
+{% load cabinet_extras %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'cabinet-home' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'cabinet-factures' %}">Factures</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ facture.numero }}</li>
+    </ol>
+</nav>
+<h1>Facture {{ facture.numero }}</h1>
+Date : {{ facture.date_creation | date:'d/m/Y' }}<br/>
+{% if facture.ordonnance %}
+    Ordonnance : <a href="{% url 'cabinet-ordonnance-info' facture.ordonnance.id %}">{{ facture.ordonnance }}</a><br/>
+{% endif %}
+<a href= "{% url 'cabinet-patient-info' facture.patient.id %}">{{ facture.patient }}</a><br/>
+{% if facture.tiers %}
+    <a href= "{% url 'cabinet-patient-info' facture.tiers.id %}">{{ facture.tiers }}</a><br/>
+{% endif %}
+Montant de la facture : {{ facture.montant }}€<br/>
+
+{% if facture.paye %}
+    <span class="badge rounded-pill bg-success">Payée</span>
+{% else %}
+    <span class="badge rounded-pill bg-danger">Non payée</span>
+{% endif %}
+<br/>
+{% if facture.periode %}
+    Période : {{ facture.periode }}<br/>
+{% endif %}
+
+{% endblock content %}

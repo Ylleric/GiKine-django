@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load static %}
+{% load cabinet_extras %}
+
+{% block content %}
+<div class="row row-cols-1 row-cols-md-2 g-4 mt-1">
+    <div class="col">
+        <div class="card border-0">
+            <div class="card-body">
+            <h5 class="card-title">Factures des {{ nombre_jours }} derniers jours</h5>
+            <p class="card-text">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Patient</th>
+                            <th>Total</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                
+                {% for facture in liste_factures %}
+                <tr>
+                    <td><a href= "{% url 'cabinet-patient-info' facture.patient %}">{{ facture.patient__nom }}</a></td>
+                    <td>{{ facture.total_factures | floatformat:2 }}€</td>
+                    <td>
+                        {% if facture.paye %}
+                            <span class="badge rounded-pill bg-success">Payée</span>
+                        {% else %}
+                            <span class="badge rounded-pill bg-danger">Non payée</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </table>
+            </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col">
+        <div class="card border-0">
+            <div class="card-body">
+            <h5 class="card-title">Ordonnances valables moins de {{ nombre_jours_avant_expiration }} jours</h5>
+            <p class="card-text">
+                <table class="table table-sm">
+                    <tr>
+                        <th>Numéro</th>
+                        <th>Patients</th>
+                        <th>Séances</th>
+                        <th>Expire le</th>
+                    </tr>
+                {% for ordonnance in listes_ordonnances %}
+                <tr>
+                    <td><a href="{% url 'cabinet-ordonnance-info' ordonnance.id %}">{{ ordonnance.numero }}</a></td>
+                    <td><a href="{% url 'cabinet-patient-info' ordonnance.patient.id %}">{{ ordonnance.patient }}</a></td>
+                    <td>{{ ordonnance.seances_restantes }}</td>
+                    <td>{{ ordonnance.date_fin_validite | date:'d/m/Y' }}</td>
+                </tr>
+                {% endfor %}
+                </table>
+            </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
