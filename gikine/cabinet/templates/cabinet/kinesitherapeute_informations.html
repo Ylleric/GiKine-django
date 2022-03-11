@@ -21,7 +21,7 @@
     </thead>
 {% for prestation in liste_prestations %}
 <tr>
-    <td>{{ prestation.date_prestation | date:'d/m/Y' }}</td>
+    <td>{{ prestation.date_seance | date:'d/m/Y' }}</td>
     <td><a href="{% url 'cabinet-patient-info' prestation.patient.id %}">{{ prestation.patient }}</a></td>
     <td><a href="{% url 'cabinet-ordonnance-info' prestation.ordonnance.id %}">{{ prestation.ordonnance }}</a></td>
 </tr>

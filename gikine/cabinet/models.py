@@ -69,6 +69,23 @@ class Prestation(models.Model):
 
     def __str__(self):
         return f"{self.numero} {self.patient}"
+class Seance(models.Model):
+    numero = models.IntegerField()
+    ordonnance = models.ForeignKey('Ordonnance', related_name="seance_ordonnance",on_delete=models.CASCADE, null=True)
+    patient = models.ForeignKey('Patient', related_name="seance_patient", on_delete=models.CASCADE)
+    kinesitherapeute = models.ForeignKey('Kinesitherapeute', related_name="seance_kinesitherapeute", on_delete=models.CASCADE, null=True)
+
+    libelle = models.CharField(max_length=300)
+    code_prestation = models.CharField(max_length=7, blank=True, null=True)
+
+    date_seance = models.DateField(blank=True, null=True)
+    date_facture = models.DateField(blank=True, null=True)
+
+    effectuee = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'Seance'
+        ordering = ['numero']
 
 class Medecin(models.Model):
     matricule = models.IntegerField(db_index=True)

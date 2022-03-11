@@ -50,7 +50,7 @@
                     <h5 class="card-title">Séances</h5>
                 <p class="card-text">
                     Prescrites : {{ ordonnance.prestations_max }}<br/>
-                    Effectuées : {{ prestations_realisees }}<br/>
+                    Effectuées : {{ seances_realisees }}<br/>
                     Max par semaine : 
                     {% if ordonnance.prestations_max_semaine > 0 %}
                         {{ ordonnance.prestations_max_semaine }}
@@ -78,28 +78,24 @@
         </div>
         
     </div>
-    
     <table class="table table-sm">
         <thead>
             <tr>
                 <th>Date</th>
                 <th>Code</th>
                 <th>Description</th>
-                <th>Tarif</th>
                 <th>Kinesitherapeute</th>
             </tr>
         </thead>
-        {% for prestation in liste_prestations %}
+        {% for seance in liste_seances %}
         <tr>
-            <td>{{ prestation.date_prestation | date:'d/m/Y' }}</td>
-            <td>{{ prestation.code_acte }}</td>
-            <td>{{ prestation.libelle }}</td>
-            <td>{{ prestation.prix_acte }}€</td>
-            <td>{{ prestation.kinesitherapeute.initiale }}</td>
+            <td>{{ seance.date_seance | date:'d/m/Y' }}</td>
+            <td>{{ seance.code_prestation }}</td>
+            <td>{{ seance.libelle }}</td>
+            <td>{{ seance.kinesitherapeute.initiale }}</td>
         </tr>
         {% endfor %}
     </table>
-
     {% if ordonnance.fichier %}
     <div class="d-grid gap-2">
         <a href="{{ MEDIA_URL }}ordonnances/{{ ordonnance.fichier }}" target="_blank" class="btn btn-primary" role="button">Document</a>

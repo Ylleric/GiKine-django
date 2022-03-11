@@ -4,7 +4,7 @@ from django.db.models import aggregates, F
 from django.db.models.aggregates import Sum, Count
 from django.db.models.functions import ExtractMonth, ExtractYear
 from django.shortcuts import render, get_object_or_404
-from .models import Facture, Medecin, Ordonnance, Patient, Kinesitherapeute, Prestation, Kinesitherapeute
+from .models import Facture, Medecin, Ordonnance, Patient, Kinesitherapeute, Prestation, Kinesitherapeute, Seance
 import calendar
 from datetime import datetime, timedelta
 
@@ -36,7 +36,7 @@ def kinesitherapeutes(request):
 
 def kinesitherapeute_info(request, id):
     kinesitherapeute = get_object_or_404(Kinesitherapeute, id=id)
-    liste_prestations = Prestation.objects.filter(kinesitherapeute = kinesitherapeute.id ).exclude(ordonnance = None).order_by('-date_prestation')
+    liste_prestations = Seance.objects.filter(kinesitherapeute = kinesitherapeute.id ).filter(effectuee = True).order_by('-date_seance')
 
     context = {
         'kinesitherapeute' : kinesitherapeute,
@@ -110,8 +110,7 @@ def chiffre_affaire(request):
     data_count = {}
 
     today = datetime.today()
-
-    liste_prestations = Prestation.objects.annotate(year=ExtractYear('date_prestation'),month=ExtractMonth('date_prestation'),).values('year', 'month').annotate(sum_prestation=Sum('prix_acte')).annotate(count_prestation=Count('prix_acte'))
+    liste_seances = Seance.objects.annotate(year=ExtractYear('date_seance'),month=ExtractMonth('date_seance'),).values('year', 'month').annotate(count_seances=Count('effectuee'))
     liste_factures = Facture.objects.annotate(year=ExtractYear('date_creation'),month=ExtractMonth('date_creation'),).values('year', 'month').annotate(sum_facture=Sum('montant'))
     
     for n in range(settings.ANNEES_MAX):
@@ -119,11 +118,11 @@ def chiffre_affaire(request):
         liste_labels = []
         liste_data = []
 
-        total_prestations = liste_prestations.filter(year = today.year - n).order_by()
+        total_seances = liste_seances.filter(year = today.year - n).order_by()
         list_chiffre_affaire = liste_factures.filter(year=today.year - n).order_by()
         
-        for prestation in total_prestations:
-            liste_data_count.append(prestation['count_prestation'])
+        for seance in total_seances:
+            liste_data_count.append(seance['count_seances'])
 
         for chiffre_affaire in list_chiffre_affaire:
             date_temp = datetime.strptime(f"{chiffre_affaire['year']}-{chiffre_affaire['month']}-01", '%Y-%m-%d')
@@ -145,22 +144,13 @@ def chiffre_affaire(request):
 
 def ordonnance_info(request, id):
     ordonnance = Ordonnance.objects.filter(id=id).first()
-    prestations = Prestation.objects.filter(ordonnance=ordonnance)
+    liste_seances = Seance.objects.filter(ordonnance=ordonnance).filter(effectuee=True).order_by('-numero')
+    seances_realisees = liste_seances.aggregate(seances_max=Count('numero',distinct=True))['seances_max']
 
-    match ordonnance.taux:
-        case 0 | 70.0:
-            liste_prestations = prestations.exclude(date_periode=None).order_by('-date_prestation')
-        case 100:
-            liste_prestations = prestations.filter(date_periode=None).order_by('-date_prestation')
-        case None:
-            liste_prestations = prestations.order_by('-date_prestation')
-    
-    prestations_realisees = liste_prestations.aggregate(prestations_max=Count('numero',distinct=True))['prestations_max']
-    
     context = {
         'ordonnance' : ordonnance,
-        'liste_prestations': liste_prestations,
-        'prestations_realisees' : prestations_realisees
+        'seances_realisees' : seances_realisees,
+        'liste_seances' : liste_seances
     }
     return render(request, 'cabinet/ordonnance_informations.html', context)
 

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Facture, Kinesitherapeute, Medecin, Ordonnance, Patient, Prestation, TypePatient
+from .models import Facture, Kinesitherapeute, Medecin, Ordonnance, Patient, Prestation, TypePatient, Seance
 
 
 class FactureAdmin(admin.ModelAdmin):
@@ -38,6 +38,11 @@ class PrestationAdmin(admin.ModelAdmin):
     search_fields  = ('numero', )
     ordering       = ('-numero', )
 
+class SeanceAdmin(admin.ModelAdmin):
+    list_display   = ('numero', 'patient', 'ordonnance', 'effectuee', 'date_seance', 'date_facture')
+    list_filter    = ('effectuee', 'patient', )
+    search_fields  = ('numero', )
+    ordering       = ('-numero', )
 
 class TypePatientAdmin(admin.ModelAdmin):
     list_display   = ('nom', )
@@ -50,4 +55,5 @@ admin.site.register(Medecin,MedecinAdmin)
 admin.site.register(Ordonnance,OrdonnanceAdmin)
 admin.site.register(Patient, PatientAdmin)
 admin.site.register(Prestation, PrestationAdmin)
+admin.site.register(Seance, SeanceAdmin)
 admin.site.register(TypePatient, TypePatientAdmin)
