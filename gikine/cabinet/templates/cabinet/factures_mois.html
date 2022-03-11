@@ -17,6 +17,7 @@
 <table class="table table-sm">
     <thead>
         <tr>
+            <th>Facture</th>
             <th>Patient</th>
             <th>Total</th>
             <th>Statut</th>
@@ -25,6 +26,7 @@
 
 {% for facture in liste_factures %}
 <tr>
+    <td><a href= "{% url 'cabinet-facture-info' facture.id %}">{{ facture.numero }}</a></td>
     <td><a href= "{% url 'cabinet-patient-info' facture.patient %}">{{ facture.patient__nom }}</a></td>
     <td>{{ facture.total_factures | floatformat:2 }}€</td>
     <td>

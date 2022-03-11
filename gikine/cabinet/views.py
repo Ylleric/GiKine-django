@@ -111,7 +111,7 @@ def chiffre_affaire(request):
 
     today = datetime.today()
 
-    liste_prestations = Prestation.objects.annotate(year=ExtractYear('date_periode'),month=ExtractMonth('date_periode'),).values('year', 'month').annotate(sum_prestation=Sum('prix_acte')).annotate(count_prestation=Count('prix_acte'))
+    liste_prestations = Prestation.objects.annotate(year=ExtractYear('date_prestation'),month=ExtractMonth('date_prestation'),).values('year', 'month').annotate(sum_prestation=Sum('prix_acte')).annotate(count_prestation=Count('prix_acte'))
     liste_factures = Facture.objects.annotate(year=ExtractYear('date_creation'),month=ExtractMonth('date_creation'),).values('year', 'month').annotate(sum_facture=Sum('montant'))
     
     for n in range(settings.ANNEES_MAX):
@@ -193,7 +193,7 @@ def factures_mois(request, annee, mois):
     date_fin = datetime.strptime(f"{annee}-{mois}-{calendar._monthlen(annee, mois)}", '%Y-%m-%d')
 
     factures_periode = Facture.objects.filter(date_creation__range=[date_debut, date_fin])
-    liste_factures = factures_periode.values('patient__nom','patient', 'paye').annotate(total_factures=Sum('montant')).order_by('-total_factures')
+    liste_factures = factures_periode.values('id', 'numero', 'patient__nom','patient', 'paye').annotate(total_factures=Sum('montant')).order_by('-total_factures')
     total_factures = factures_periode.aggregate(total_montant = Sum('montant'))['total_montant']
 
     context = {
